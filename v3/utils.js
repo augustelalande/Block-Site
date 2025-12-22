@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function getRelativeTime(date) {
   const now = new Date();
   const timeDifferenceInSeconds = Math.floor((now - date) / 1000); // Convert to seconds
