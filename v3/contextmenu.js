@@ -107,6 +107,7 @@ chrome.storage.onChanged.addListener(ps => {
 });
 
 const resume = () => {
+  chrome.storage.local.remove('pause-until');
   chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: [999]
   });
@@ -133,6 +134,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
           chrome.alarms.create('release.pause', {
             when
           });
+          chrome.storage.local.set({'pause-until': when});
         }
         const condition = {
           'resourceTypes': ['main_frame', 'sub_frame']
@@ -199,3 +201,10 @@ chrome.alarms.onAlarm.addListener(alarm => {
     resume();
   }
 });
+
+const tryResume = async () => {
+  const {['pause-until']: pauseUntil} = await storage({'pause-until': 0});
+  if (pauseUntil && Date.now() >= pauseUntil) {
+    resume();
+  }
+};

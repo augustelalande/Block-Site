@@ -278,6 +278,9 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   }
 });
 
+/* resume blocking if pause expired while browser was closed */
+tryResume();
+
 /* update prefs from the managed storage */
 once(() => chrome.storage.managed.get({
   json: ''
