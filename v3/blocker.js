@@ -1,5 +1,12 @@
 /* global convert, storage, notify, once, translate */
 
+/*
+'priority': 7 -> open once
+'priority': 4 -> schedule unblocking
+'priority': 5 -> pause
+'priority': 6 -> whitelist
+*/
+
 /* update rules */
 const update = async () => {
   if (update.busy) {
@@ -174,7 +181,7 @@ const update = async () => {
       }
       const rule = {
         id,
-        priority: 5,
+        priority: 6,
         action: {
           type: 'allow'
         },

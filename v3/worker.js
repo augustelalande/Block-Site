@@ -212,7 +212,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
             removeRuleIds: [998],
             addRules: [{
               'id': 998,
-              'priority': 5,
+              'priority': 7,
               'action': {
                 'type': 'allow'
               },
@@ -264,7 +264,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
   else if (request.method === 'get-rules') {
     chrome.declarativeNetRequest.getDynamicRules().then(rules => {
       response({
-        schedules: rules.filter(r => r.action?.type === 'allow'),
+        schedules: rules.filter(r => r.action?.type === 'allow' && r.priority === 4),
         once: rules.filter(r => r.id === 998).shift()
       });
     });
