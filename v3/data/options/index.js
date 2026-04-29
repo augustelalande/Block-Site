@@ -33,7 +33,6 @@ const DEFAULTS = {
   'css': '',
   'redirect': '',
   'blocked': [],
-  'whitelist': [],
   'notes': {},
   'sha256': '',
   'password': '', // deprecated
@@ -66,6 +65,7 @@ const DEFAULTS = {
 };
 const prefs = {};
 
+const list = document.getElementById('list');
 const wildcard = h => {
   if (h.indexOf('://') === -1 && h.startsWith('R:') === false) {
     return `*://${h}/*`;
@@ -83,13 +83,12 @@ function validateRegex(regexStr) {
   }
 }
 
-function add(hostname, type = 'blocked') {
+function add(hostname) {
   const template = document.querySelector('#list template');
   const node = document.importNode(template.content, true);
   const div = node.querySelector('div');
   div.dataset.pattern = node.querySelector('[data-id=href]').textContent = wildcard(hostname);
   div.dataset.hostname = hostname;
-  div.dataset.type = type;
   div.dataset.note = JSON.stringify(prefs.notes[hostname] || {
     date: Date.now(),
     origin: 'options',
@@ -104,60 +103,24 @@ function add(hostname, type = 'blocked') {
   rd.value = prefs.map[hostname] || '';
   // rd.disabled = hostname.indexOf('*') !== -1;
   node.querySelector('[data-cmd="remove"]').value = chrome.i18n.getMessage('options_remove');
-
-  if (type === 'whitelist') {
-    rd.style.display = 'none';
-    document.getElementById('whitelist-container').appendChild(node);
-    document.getElementById('list-whitelist').dataset.visible = true;
-  }
-  else {
-    document.getElementById('rules-container').appendChild(node);
-    document.getElementById('list').dataset.visible = true;
-  }
+  document.getElementById('rules-container').appendChild(node);
+  list.dataset.visible = true;
 
   return rd;
 }
 
 document.getElementById('add').addEventListener('submit', e => {
   e.preventDefault();
-  const hostnames = e.target.querySelector('textarea[name=hostname]').value.split(/\n/);
-
-  for (const hostname of hostnames) {
-    const h = hostname.trim();
-    if (h) {
-      if (h.startsWith('R:')) {
-        const e = validateRegex(h.substr(2));
-        if (e) {
-          toast(e.message, 30000, 'error');
-          continue;
-        }
+  const hostname = e.target.querySelector('input[type=text]').value;
+  if (hostname) {
+    if (hostname.startsWith('R:')) {
+      const e = validateRegex(hostname.substr(2));
+      if (e) {
+        return toast(e.message, 3000, 'error');
       }
-      add(h);
     }
+    add(hostname);
   }
-  // Clear the textarea after adding rules
-  e.target.querySelector('textarea[name=hostname]').value = '';
-});
-
-document.getElementById('add-whitelist').addEventListener('submit', e => {
-  e.preventDefault();
-  const hostnames = e.target.querySelector('textarea[name=hostname]').value.split(/\n/);
-
-  for (const hostname of hostnames) {
-    const h = hostname.trim();
-    if (h) {
-      if (h.startsWith('R:')) {
-        const e = validateRegex(h.substr(2));
-        if (e) {
-          toast(e.message, 30000, 'error');
-          continue;
-        }
-      }
-      add(h, 'whitelist');
-    }
-  }
-  // Clear the textarea after adding rules
-  e.target.querySelector('textarea[name=hostname]').value = '';
 });
 
 const fs = schedule => {
@@ -251,8 +214,7 @@ const init = (table = true) => chrome.storage.local.get(DEFAULTS, ps => {
       }
     });
 
-    prefs.blocked.filter(a => a).forEach(h => add(h, 'blocked'));
-    (prefs.whitelist || []).filter(a => a).forEach(h => add(h, 'whitelist'));
+    prefs.blocked.filter(a => a).forEach(add);
   }
   document.getElementById('title').checked = prefs.title;
   document.getElementById('disable-actions-options').checked = prefs['disable-actions-options'];
@@ -428,14 +390,11 @@ document.addEventListener('click', e => {
         'blocked': [...document.querySelectorAll('#rules-container > div')]
           .map(tr => tr.dataset.hostname)
           .filter((s, i, l) => s && l.indexOf(s) === i),
-        'whitelist': [...document.querySelectorAll('#whitelist-container > div')]
-          .map(tr => tr.dataset.hostname)
-          .filter((s, i, l) => s && l.indexOf(s) === i),
-        'notes': [...document.querySelectorAll('#rules-container > div, #whitelist-container > div')].reduce((p, c) => {
+        'notes': [...document.querySelectorAll('#rules-container > div')].reduce((p, c) => {
           p[c.dataset.hostname] = JSON.parse(c.dataset.note);
           return p;
         }, {}),
-        'map': [...document.querySelectorAll('#rules-container > div, #whitelist-container > div')].reduce((p, c) => {
+        'map': [...document.querySelectorAll('#rules-container > div')].reduce((p, c) => {
           const {hostname} = c.dataset;
           const mapped = c.querySelector('input[type=text]').value;
           if (mapped) {
@@ -478,11 +437,7 @@ document.addEventListener('click', e => {
           input.remove();
           event.target.result.split('\n').map(l => l.trim()).filter(l => l && l[0] !== '#').forEach(l => {
             const [a, b] = l.split(/\s+/);
-            const isWhitelist = a.startsWith('@@');
-            const hostname = isWhitelist ? a.substr(2) : a;
-            const type = isWhitelist ? 'whitelist' : 'blocked';
-
-            const rd = add(hostname, type);
+            const rd = add(a);
             if (b) {
               rd.value = b;
             }
@@ -582,7 +537,7 @@ document.getElementById('rules-container').addEventListener('click', e => {
   if (e.target.dataset.id === 'href') {
     const value = e.target.parentElement.dataset.hostname;
     if (value) {
-      document.querySelector('#add textarea[name="hostname"]').value = value;
+      document.querySelector('#add input[name="hostname"]').value = value;
       document.dispatchEvent(new Event('change'));
     }
   }
@@ -661,13 +616,6 @@ document.getElementById('rate').onclick = () => {
 document.getElementById('remove-all').onclick = () => {
   if (confirm(chrome.i18n.getMessage('options_remove_all_confirm'))) {
     for (const input of document.querySelectorAll('#rules-container [data-cmd=remove]')) {
-      input.click();
-    }
-  }
-};
-document.getElementById('remove-all-whitelist').onclick = () => {
-  if (confirm(chrome.i18n.getMessage('options_remove_all_confirm'))) {
-    for (const input of document.querySelectorAll('#whitelist-container [data-cmd=remove]')) {
       input.click();
     }
   }

@@ -57,7 +57,7 @@
     "message": "Operate on reverse mode (only matching patterns are accessible)"
   },
   "options_new_hostname": {
-    "message": "Block new hostnames (one rule per line):"
+    "message": "Block a new hostname:"
   },
   "options_add": {
     "message": "Add"
@@ -87,13 +87,7 @@
     "message": "Save Options"
   },
   "options_block_header": {
-    "message": "Add Rules"
-  },
-  "options_whitelist_header": {
-    "message": "Whitelist Rules"
-  },
-  "options_new_whitelist": {
-    "message": "The following rules override blocking rules and can be used to allow specific pages within a blocked hostname. (one rule per line)"
+    "message": "Add a Rule"
   },
   "options_blocing_options_header": {
     "message": "Blocking Options"
@@ -141,7 +135,7 @@
     "message": "To block hostnames containing a word use '*://*word*/*' rule. To block the same word inside the pathname part use '*://*/*word*' rule. If you just need to close a page with a rule, use the 'close' keyword in the 'Redirect To' box. To construct a regular expression rule, prepend the rule with 'R:' keyword. For instance, 'R:ht{2}ps*://.*\\.go{2}gle\\.com' blocks www.google.com on both HTTP and HTTPS protocols."
   },
   "options_sup_8": {
-    "message": "Prepare a text file containing all the blocking rules in plain text format. After importing, press the save button for the changes to take place. To disregard the imported rules, reload this page without saving. To whitelist a hostname, prepend it with '@@'."
+    "message": "Prepare a text file containing all the blocking rules in plain text format. After importing, press the save button for the changes to take place. To disregard the imported rules, reload this page without saving."
   },
   "options_sup_10": {
     "message": "When importing settings, all your existing settings will be overwritten. To export minified version, use Shift key while pressing the Export button"
@@ -204,7 +198,7 @@
     "message": "Simple"
   },
   "options_intro": {
-    "message": "If you're new, block new websites by visiting the page and clicking the action button (it's in the extensions menu after installation). No need to manually make new rules."
+    "message": "To save options or set a master password, scroll down. If you're new, block new websites by visiting the page and clicking the action button (it's in the extensions menu after installation). No need to manually make new rules."
   },
   "options_sch_helper_1": {
     "message": "Generate unblocking periods for the following blocked hours"
@@ -225,7 +219,7 @@
     "message": "Remove all existing rules"
   },
   "options_remove_all_confirm": {
-    "message": "Are you sure you want to remove all existing rules?\n\nYou can refresh the page without saving to restore the rules."
+    "message": "Are you sure you want to remove all existing blocking rules?\n\nYou can refresh the page without saving to restore the rules."
   },
   "options_manual_pause": {
     "message": "Forever"

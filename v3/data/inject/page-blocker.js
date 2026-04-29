@@ -2,7 +2,6 @@
 
 const validate = () => chrome.storage.local.get({
   blocked: [],
-  whitelist: [],
   map: {},
   notes: {}
 }, async prefs => {
@@ -11,7 +10,6 @@ const validate = () => chrome.storage.local.get({
       method: 'convert',
       hosts: prefs.blocked
     });
-
     for (const {expression, host} of rules) {
       try {
         const r = new RegExp(expression, 'i');
@@ -35,25 +33,6 @@ const validate = () => chrome.storage.local.get({
             return;
           }
         }
-
-        // check if the page is not whitelisted
-        {
-          const rules = await chrome.runtime.sendMessage({
-            method: 'convert',
-            hosts: prefs.whitelist
-          });
-
-          for (const {expression} of rules) {
-            try {
-              const r = new RegExp(expression, 'i');
-              if (r.test(location.href)) {
-                return;
-              }
-            }
-            catch (e) {}
-          }
-        }
-
         // Block or Redirect
         let redirect = prefs.map[host];
         if (redirect) {
@@ -64,7 +43,6 @@ const validate = () => chrome.storage.local.get({
             });
           }
         }
-
         chrome.runtime.sendMessage({
           method: 'block',
           redirect,

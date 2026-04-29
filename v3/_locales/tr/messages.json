@@ -173,15 +173,6 @@
   "options_notification": {
     "message": "Masaüstü bildirimlerini görüntüle (önerilir)"
   },
-  "options_contexts": {
-    "message": "Engellemenin nerede uygulanacağını seçin"
-  },
-  "options_contexts_both": {
-    "message": "Engelleme hem Sayfalar hem de Çerçeveler için geçerlidir"
-  },
-  "options_contexts_page": {
-    "message": "Engelleme yalnızca Sayfalar için geçerlidir"
-  },
   "options_theme": {
     "message": "Engellenen sayfa için görsel modu seçin"
   },

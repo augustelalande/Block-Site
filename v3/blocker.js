@@ -1,12 +1,5 @@
 /* global convert, storage, notify, once, translate */
 
-/*
-'priority': 7 -> open once
-'priority': 4 -> schedule unblocking
-'priority': 5 -> pause
-'priority': 6 -> whitelist
-*/
-
 /* update rules */
 const update = async () => {
   if (update.busy) {
@@ -33,7 +26,6 @@ const update = async () => {
       'initialBlock': true,
       'initialBlockCurrent': true,
       'blocked': [],
-      'whitelist': [],
       'notes': {},
       'map': {},
       'reverse': false,
@@ -167,42 +159,6 @@ const update = async () => {
   Error: ` + e.message);
       }
     }
-    // whitelist
-    const ws = prefs.whitelist.filter((s, i, l) => s && l.indexOf(s) === i);
-    for (const w of ws) {
-      // find a free id
-      let id;
-      for (let n = 1; ; n += 1) {
-        if (ids.indexOf(n) === -1) {
-          id = n;
-          ids.push(id);
-          break;
-        }
-      }
-      const rule = {
-        id,
-        priority: 6,
-        action: {
-          type: 'allow'
-        },
-        condition: {
-          resourceTypes: prefs.contexts,
-          isUrlFilterCaseSensitive: false,
-          regexFilter: convert(w)
-        }
-      };
-      try {
-        await chrome.declarativeNetRequest.updateDynamicRules({
-          addRules: [rule]
-        });
-      }
-      catch (e) {
-        console.warn(e);
-        notify(`cannot add whitelist rule "${w}"
-
-  Error: ` + e.message);
-      }
-    }
     chrome.action.setBadgeText({text: ''});
     // get existing tabs
     const options = {
@@ -290,7 +246,7 @@ const update = async () => {
 update.caches = new Set();
 
 chrome.storage.onChanged.addListener(ps => {
-  if (ps.blocked || ps.whitelist || ps.reverse || ps.map || ps.redirect || ps.changed || ps.contexts) {
+  if (ps.blocked || ps.reverse || ps.map || ps.redirect || ps.changed || ps.contexts) {
     update().catch(e => console.error('[error]', e));
   }
 });
