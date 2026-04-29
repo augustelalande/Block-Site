@@ -1,7 +1,7 @@
-/* global convert, storage, notify, once, translate */
+/* global convert, storage, notify, once, translate, resume */
 
 /* update rules */
-const update = async () => {
+const update = async installed => {
   if (update.busy) {
     return new Promise((resolve, reject) => update.caches.add({resolve, reject}));
   }
@@ -30,8 +30,10 @@ const update = async () => {
       'map': {},
       'reverse': false,
       'redirect': '', // use custom redirect page
-      'contexts': ['main_frame', 'sub_frame']
+      'contexts': ['main_frame', 'sub_frame'],
+      'pause-until': ''
     });
+
     // remove old rules
     const rules = await chrome.declarativeNetRequest.getDynamicRules();
     await chrome.declarativeNetRequest.updateDynamicRules({
@@ -218,15 +220,34 @@ const update = async () => {
 
     // do we have a manual pause
     if (rules.filter(r => r.id === 999).length) {
-      chrome.action.setIcon({
-        path: {
-          '16': '/data/icons/paused/16.png',
-          '32': '/data/icons/paused/32.png'
+      const icon = () => {
+        chrome.action.setIcon({
+          path: {
+            '16': '/data/icons/paused/16.png',
+            '32': '/data/icons/paused/32.png'
+          }
+        });
+        chrome.action.setTitle({
+          title: translate('bg_msg_27')
+        });
+      };
+      if (prefs['pause-until'] === 'no-resume') {
+        icon();
+      }
+      /* removed paused state if there is not timer to reset it and there is no infinite pause */
+      else if (prefs['pause-until'] && Date.now() >= prefs['pause-until']) {
+        resume();
+      }
+      else {
+        // on Firefox after a restart there is no timer
+        const alarms = await chrome.alarms.getAll();
+        if (alarms.some(a => a.name === 'release.pause')) {
+          icon();
         }
-      });
-      chrome.action.setTitle({
-        title: translate('bg_msg_27')
-      });
+        else {
+          resume();
+        }
+      }
     }
     else {
       chrome.action.setTitle({
@@ -250,7 +271,7 @@ chrome.storage.onChanged.addListener(ps => {
     update().catch(e => console.error('[error]', e));
   }
 });
-once(update, {
+once(() => update(true), {
   installed: true
 });
 

@@ -107,6 +107,7 @@ chrome.storage.onChanged.addListener(ps => {
 });
 
 const resume = () => {
+  chrome.storage.local.remove('pause-until');
   chrome.declarativeNetRequest.updateDynamicRules({
     removeRuleIds: [999]
   });
@@ -128,11 +129,19 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   else if (info.menuItemId.startsWith('pause-')) {
     const resolve = async () => {
       try {
-        if (info.menuItemId !== 'pause-NaN') {
+        if (info.menuItemId === 'pause-NaN') {
+          // when the user is already in paused state
+          chrome.alarms.clear('release.pause');
+          chrome.storage.local.set({'pause-until': 'no-resume'});
+        }
+        else {
           const when = Date.now() + Number(info.menuItemId.replace('pause-', '')) * 60 * 1000;
           chrome.alarms.create('release.pause', {
             when
           });
+          console.log(when);
+          // this is useful to know after a restart if we should remove the pause state or not
+          chrome.storage.local.set({'pause-until': when});
         }
         const condition = {
           'resourceTypes': ['main_frame', 'sub_frame']
