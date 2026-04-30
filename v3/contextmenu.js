@@ -1,4 +1,4 @@
-/* global translate, notify, storage, sha256, userAction, once */
+/* global translate, notify, storage, sha256, userAction */
 
 const isFF = /Firefox/.test(navigator.userAgent);
 
@@ -78,7 +78,17 @@ const buildContext = () => chrome.storage.local.get({
   }, () => chrome.runtime.lastError);
 });
 
-once(buildContext);
+{
+  const once = () => {
+    if (once.done) {
+      return;
+    }
+    once.done = true;
+    buildContext();
+  };
+  chrome.runtime.onStartup.addListener(once);
+  chrome.runtime.onInstalled.addListener(once);
+}
 
 chrome.storage.onChanged.addListener(ps => {
   if (ps['contextmenu-pause']) {

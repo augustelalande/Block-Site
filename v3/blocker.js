@@ -1,7 +1,7 @@
-/* global convert, storage, notify, once, translate, resume */
+/* global convert, storage, notify, translate, resume */
 
 /* update rules */
-const update = async installed => {
+const update = async () => {
   if (update.busy) {
     return new Promise((resolve, reject) => update.caches.add({resolve, reject}));
   }
@@ -239,7 +239,7 @@ const update = async installed => {
         resume();
       }
       else {
-        // on Firefox after a restart there is no timer
+        // on Firefox after running "chrome.runtime.restart()" there is no timer
         const alarms = await chrome.alarms.getAll();
         if (alarms.some(a => a.name === 'release.pause')) {
           icon();
@@ -271,9 +271,6 @@ chrome.storage.onChanged.addListener(ps => {
     update().catch(e => console.error('[error]', e));
   }
 });
-once(() => update(true), {
-  installed: true
-});
 
 // if a page uses history API to push state, the blocker script is not being called
 chrome.tabs.onUpdated.addListener((tabId, info) => {
@@ -284,7 +281,19 @@ chrome.tabs.onUpdated.addListener((tabId, info) => {
   }
 });
 
-// remove once rule on startup
-once(() => chrome.declarativeNetRequest.updateDynamicRules({
-  removeRuleIds: [998]
-}));
+{
+  const once = () => {
+    if (once.done) {
+      return;
+    }
+    once.done = true;
+    // update
+    update();
+    // remove "open once" rule on startup
+    chrome.declarativeNetRequest.updateDynamicRules({
+      removeRuleIds: [998]
+    });
+  };
+  chrome.runtime.onStartup.addListener(once);
+  chrome.runtime.onInstalled.addListener(once);
+}

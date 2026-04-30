@@ -70,18 +70,3 @@ const prompt = (message, value = '', hidden = true, command = '', extra = {}) =>
   });
 };
 prompt.instances = {};
-
-/* once */
-const once = (c, prop = {
-  startup: true,
-  installed: true
-}) => {
-  if (prop.startup) {
-    chrome.runtime.onStartup.addListener(c);
-  }
-  if (prop.installed) {
-    chrome.runtime.onInstalled.addListener(c);
-  }
-};
-once.cache = new Set();
-
