@@ -10,6 +10,7 @@
       "schedule.js",
       "contextmenu.js",
       "idle.js",
+      "managed.js",
       "worker.js"
     ]
   },

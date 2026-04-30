@@ -22,7 +22,7 @@
       }
     }
     catch (e) {
-      console.error('cannot parse the managed JSON string', e);
+      console.warn('[Managed Storage]', e);
     }
   };
   chrome.runtime.onStartup.addListener(once);
