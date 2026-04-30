@@ -1,5 +1,3 @@
-/* global storage */
-
 /* update prefs from the managed storage */
 {
   const once = async () => {
@@ -14,7 +12,7 @@
       });
       if (rps.json) {
         rps = JSON.parse(rps.json);
-        const prefs = await storage(null);
+        const prefs = await chrome.storage.local.get(null);
 
         if (prefs.guid !== rps.guid || rps['managed.storage.overwrite.on.start'] === true) {
           Object.assign(prefs, rps);

@@ -18,9 +18,6 @@ const notify = message => chrome.storage.local.get({
 // eslint-disable-next-line no-unused-vars
 const translate = id => chrome.i18n.getMessage(id) || id;
 
-// eslint-disable-next-line no-unused-vars
-const storage = prefs => new Promise(resolve => chrome.storage.local.get(prefs, resolve));
-
 /* prompt */
 chrome.runtime.onConnect.addListener(port => {
   port.onDisconnect.addListener(() => {

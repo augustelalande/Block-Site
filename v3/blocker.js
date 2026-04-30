@@ -1,4 +1,4 @@
-/* global convert, storage, notify, translate, resume */
+/* global convert, notify, translate, resume */
 
 /* update rules */
 const update = async () => {
@@ -21,7 +21,7 @@ const update = async () => {
   };
 
   try {
-    const prefs = await storage({
+    const prefs = await chrome.storage.local.get({
       'max-number-of-rules': (chrome.declarativeNetRequest.MAX_NUMBER_OF_REGEX_RULES || 1000) / 2,
       'initialBlock': true,
       'initialBlockCurrent': true,

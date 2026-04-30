@@ -1,4 +1,4 @@
-/* global translate, notify, storage, sha256, userAction */
+/* global translate, notify, sha256, userAction */
 
 const isFF = /Firefox/.test(navigator.userAgent);
 
@@ -188,7 +188,7 @@ Error: ${e.message}`);
       }
     };
 
-    const prefs = await storage({
+    const prefs = await chrome.storage.local.get({
       'sha256': '', // sha256 hash code of the user password
       'password': '' // deprecated
     });

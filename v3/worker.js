@@ -4,7 +4,7 @@
   999: pause blocking
   1000-: schedules
 */
-/* global translate, notify, storage, browser */
+/* global translate, notify, browser */
 
 /* imports */
 if (typeof importScripts !== 'undefined') {
@@ -53,7 +53,7 @@ const sha256 = async (message = '') => {
   const hashHex = hashArray.map(b => ('00' + b.toString(16)).slice(-2)).join('');
   return hashHex;
 };
-sha256.validate = ({password}, resolve, reject) => storage({
+sha256.validate = ({password}, resolve, reject) => chrome.storage.local.get({
   'sha256': '', // sha256 hash code of the user password
   'password': '', // deprecated
   'wrong': 1, // minutes,
@@ -124,7 +124,7 @@ const userAction = async (tabId, href, frameId) => {
     return notify(translate('bg_msg_1'));
   }
 
-  const prefs = await storage({
+  const prefs = await chrome.storage.local.get({
     'blocked': [],
     'notes': {},
     'reverse': false,
@@ -197,7 +197,7 @@ chrome.runtime.onMessage.addListener((request, sender, response) => {
     return true;
   }
   else if (request.method === 'open-once') {
-    storage({
+    chrome.storage.local.get({
       'timeout': 60, // seconds
       'sha256': '', // sha256 hash code of the user password
       'password': '' // deprecated

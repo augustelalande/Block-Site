@@ -1,4 +1,4 @@
-/* global notify, storage */
+/* global notify */
 
 const schedule = {
   async update() {
@@ -13,7 +13,7 @@ const schedule = {
       removeRuleIds: rules.filter(r => r.id > 999).map(r => r.id)
     });
     // schedules
-    const prefs = await storage({
+    const prefs = await chrome.storage.local.get({
       'schedule': {},
       'schedules': {},
       'schedule-offset': 0 // in minutes
